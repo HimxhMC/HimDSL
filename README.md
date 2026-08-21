@@ -1,5 +1,6 @@
 HimDSL 教程
-HimDSL 是一个为 Minecraft 服务器设计的轻量级脚本语言插件，语法类似 Java/C，专为快速编写游戏逻辑而设计。您可以用它来：
+HimDSL 是一个为 Minecraft 服务器设计的轻量级脚本语言插件，
+语法类似 Java/C，专为快速编写游戏逻辑而设计。您可以用它来：
 
 处理玩家事件（加入、退出、破坏方块等）
 创建定时任务（延迟、循环）
@@ -8,9 +9,10 @@ HimDSL 是一个为 Minecraft 服务器设计的轻量级脚本语言插件，�
 
 快速开始
 1. 安装
-将 HimDSL.jar 放入服务器的 plugins/ 文件夹，重启服务器。插件会创建 plugins/HimDSL/ 目录，所有脚本存放于此。
+将 HimDSL.jar 放入服务器的 plugins/ 文件夹，重启服务器。
+插件会创建 plugins/HimDSL/ 目录，所有脚本存放于此。
 
-2. 安装代码高亮及第一个脚本。
+3. 安装代码高亮及第一个脚本。
 查看代码高亮配置.zip。
 在 plugins/HimDSL/ 下创建 hello.dsl：
 int main() {
@@ -103,11 +105,17 @@ do {
 
 类型	说明
 $player(变量名, 属性, ...)$	获取玩家属性。
-变量名需为已定义的 player 变量或事件中的玩家。属性示例：x, y, z, yaw, pitch, hp, hungry, name, uuid, opengui, handlejoin, handleleave, breaktype, breakpos, buildtype, buildpos, runcommand, slot, mainhand, offhand, bossdistance, atroom, issneaking, issprinting, gamemode, explevel, world
+变量名需为已定义的 player 变量或事件中的玩家。属性示例：x, y, z, yaw, pitch, hp, hungry,
+name, uuid, opengui, handlejoin, handleleave, breaktype, breakpos, buildtype,
+buildpos, runcommand, slot, mainhand, offhand, bossdistance, atroom, issneaking,
+issprinting, gamemode, explevel, world
 $world(属性, ...)$	世界信息。
-属性：name, id, block(x,y,z), iscontainer(x,y,z), contain(x,y,z,slot), hasplayer(世界名)，以及 WorldEdit 相关（getx, gety, getz，需软依赖）。支持可选世界名参数。
+属性：name, id, block(x,y,z), iscontainer(x,y,z), contain(x,y,z,slot),
+hasplayer(世界名)，以及 WorldEdit 相关（getx, gety, getz，需软依赖）。
+支持可选世界名参数。
 $server(属性, ...)$	服务器信息。
-属性：tps, mspt, ping(玩家名), serverloadevent, servercloseevent, onpluginenable, onplugindisable, ondungeonfail, ondungeonwin。
+属性：tps, mspt, ping(玩家名), serverloadevent, servercloseevent,
+onpluginenable, onplugindisable, ondungeonfail, ondungeonwin。
 $boss(属性)$	
 获取 HimDungeons 插件中的 Boss 属性：x, y, z, yaw, pitch, world。需软依赖。
 $haveVar(变量名)$	
@@ -133,7 +141,9 @@ queue(), offer(queue, item), poll(queue), peek(queue), isEmpty(queue)	队列操�
 map(), put(map, key, value), get(map, key), remove(map, key), containsKey(map, key)	Map 操作
 start(函数名), stop(函数名)	手动启动/停止已定义的注解函数（@EventHandler 或 @BukkitRunnable）
 isOp(玩家对象或名字)	判断玩家是否为 OP
-数学函数：abs, fabs, fmod, max, min, pow, sqrt, cbrt, hypot, log, log10, log2, ceil, floor, round, sin, cos, tan, asin, acos, atan	对应数学运算
+数学函数：abs, fabs, fmod, max, min, pow, sqrt, cbrt, 
+hypot, log, log10, log2, ceil, floor, round, sin, cos,
+tan, asin, acos, atan	对应数学运算
 详细说明
 变量作用域
 全局变量在脚本顶层声明，所有函数共享（通过 globalEnv）。
