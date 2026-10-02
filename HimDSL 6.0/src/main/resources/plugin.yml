@@ -1,0 +1,8 @@
+name: HimDSL
+version: "6.0"
+main: com.himdsl.HimDSLPlugin
+api-version: 1.13
+commands:
+  himdsl:
+    description: HimDSL 脚本管理
+    usage: /himdsl <compile|run> <相对路径>
