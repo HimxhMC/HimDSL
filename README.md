@@ -1,212 +1,275 @@
-HimDSL 教程
-HimDSL 是一个为 Minecraft 服务器设计的轻量级脚本语言插件，
-语法类似 Java/C，专为快速编写游戏逻辑而设计。您可以用它来：
+# HimDSL
 
-处理玩家事件（加入、退出、破坏方块等）
-创建定时任务（延迟、循环）
-操作玩家、世界、服务器数据
-与 HimDungeons 等插件联动（软依赖）
+一个为 Minecraft Java 版服务端设计的领域特定语言（DSL）插件。用接近 Java 的语法编写事件监听、定时任务、GUI 界面、数值计算与状态机，无需编写和编译 Java 插件。
 
-快速开始
-1. 安装
-将 HimDSL.jar 放入服务器的 plugins/ 文件夹，重启服务器。
-插件会创建 plugins/HimDSL/ 目录，所有脚本存放于此。
+A domain-specific language (DSL) plugin for Minecraft Java servers. Write event listeners, scheduled tasks, GUI menus, computations, and state machines in Java-like syntax — no Java plugin required.
 
-3. 安装代码高亮及第一个脚本。
-查看代码高亮配置.zip。
-在 plugins/HimDSL/ 下创建 hello.dsl：
+---
+
+## 环境要求 / Requirements
+
+- **服务端**：Bukkit / Spigot / Paper 1.13+（推荐 Paper 1.21 以上）
+- **Java**：25 或更高
+- **可选依赖**（缺省时功能自动降级）：
+  - [PlaceholderAPI](https://www.spigotmc.org/resources/placeholderapi.6245/) —— `papi(...)` 系列函数
+  - HimDungeons —— `$boss(...)$` 与部分玩家占位符
+  - WorldEdit —— 部分世界占位符
+
+- **Server**: Bukkit / Spigot / Paper 1.13+ (Paper 1.16.5+ recommended)
+- **Java**: 17 or later
+- **Optional dependencies** (features degrade gracefully when missing):
+  - [PlaceholderAPI](https://www.spigotmc.org/resources/placeholderapi.6245/) — `papi(...)` family
+  - HimDungeons — `$boss(...)$` and some player placeholders
+  - WorldEdit — some world placeholders
+
+---
+
+## 安装 / Installation
+
+1. 下载 `HimDSL-x.y.z.jar`。
+2. 放入服务器的 `plugins/` 目录。
+3. 重启服务器。
+4. 看到控制台输出 `[HimDSL] HimDSL enabled.` 即安装成功。
+
+插件会自动创建数据目录 `plugins/HimDSL/`，所有脚本都放在这里。
+
+1. Download `HimDSL-x.y.z.jar`.
+2. Place it in the server's `plugins/` folder.
+3. Restart the server.
+4. Seeing `[HimDSL] HimDSL enabled.` means success.
+
+The data folder `plugins/HimDSL/` is created automatically; all scripts live here.
+
+---
+
+## 快速开始 / Quick Start
+
+在 `plugins/HimDSL/` 下创建 `hello.himdsl`：
+
+Create `hello.himdsl` inside `plugins/HimDSL/`:
+
+```himdsl
 int main() {
-    runcmd("CONSOLE", "say Hello,World!");
+    runcmd("CONSOLE", "say Hello, HimDSL!");
 }
-运行脚本：/himdsl run hello.dsl
+```
 
-语言语法
-注释
-// 单行注释
-/* 多行
-   注释 */
+执行：
 
-变量声明
-支持类型推断（var）或显式类型：
-var a = 10;           // int
-var b = 3.14;         // double
-var c = true;         // bool
-var d = "hello";      // string
-int e = 5;
-double f = 2.5;
-bool g = false;
-string h = "world";
-玩家声明（选择器）
-player p = @a[limit=1];      // 获取所有在线玩家中的第一个
-player nearest = @p;         // 最近的玩家（需要上下文原点）
-player random = @r;          // 随机在线玩家
-player self = @s;            // 触发事件的玩家（仅事件函数内有效）
-player all = @a;             // 全部在线玩家（返回 List<Player>）
-选择器支持过滤器（逗号分隔）：
-limit – 返回数量（为 1 时返回单个 Player，否则返回 List）
-distance=..10 – 距离原点（在事件或占位符中设置）的范围内
-level=5..10 – 玩家等级范围
-name=Steve – 玩家名
-gamemode=creative – 游戏模式
-world="world" – 所在世界
-x=100, y=64, z=0 – 精确坐标
+Run:
 
-数组
-var arr = [1, 2, 3];          // 动态数组（ArrayList）
-int[] nums = [10, 20];        // 显式类型
-arr[0] = 100;                 // 赋值
-var val = arr[1];             // 访问
+```
+/himdsl run hello.himdsl
+```
 
-运算符
-算术：+ - * / %
-比较：== != < > <= >=
-逻辑：&& || !
-赋值：= += -= *= /= %=
-位运算：~（按位取反）
+所有在线玩家会看到 `Hello, HimDSL!` 广播。
 
-控制结构
-if (条件) {
-    // ...
-} else if {
-    // ...
-} else{
-    // ...
+Every online player sees the `Hello, HimDSL!` broadcast.
+
+---
+
+## 命令 / Commands
+
+| 命令 | 说明 | 权限节点 |
+|------|------|---------|
+| `/himdsl compile <相对路径>` | 语法检查，不执行 | `himdsl.use` |
+| `/himdsl run <相对路径> [参数...]` | 执行脚本，参数按顺序传入 `main` | `himdsl.run` |
+| `/himdsl debug on\\|off` | 打开 / 关闭详细日志 | `himdsl.debug` |
+| `/himdsl debug codeon\\|codeoff` | 打开 / 关闭运行前打印脚本内容 | `himdsl.debug` |
+
+| Command | Description | Permission |
+|---------|-------------|-----------|
+| `/himdsl compile <path>` | Syntax check only | `himdsl.use` |
+| `/himdsl run <path> [args...]` | Execute the script; args flow to `main` | `himdsl.run` |
+| `/himdsl debug on\\|off` | Toggle verbose logs | `himdsl.debug` |
+| `/himdsl debug codeon\\|codeoff` | Toggle script-text printing before each run | `himdsl.debug` |
+
+**路径相对于 `plugins/HimDSL/`**，且不允许逃逸到插件目录之外。
+
+**Paths are relative to `plugins/HimDSL/`** and cannot escape the plugin directory.
+
+---
+
+## 权限 / Permissions
+
+| 节点 | 默认 | 说明 |
+|------|------|------|
+| `himdsl.use` | OP | 允许 `compile` 子命令 |
+| `himdsl.run` | OP | 允许 `run` 子命令 |
+| `himdsl.debug` | OP | 允许 `debug` 子命令 |
+
+| Node | Default | Description |
+|------|---------|-------------|
+| `himdsl.use` | OP | Allows the `compile` subcommand |
+| `himdsl.run` | OP | Allows the `run` subcommand |
+| `himdsl.debug` | OP | Allows the `debug` subcommand |
+
+通过权限管理插件（LuckPerms 等）按需授予。
+
+Grant them via a permissions plugin (LuckPerms, etc.) as needed.
+
+---
+
+## 自动执行脚本 / Auto-run Scripts
+
+在 `plugins/HimDSL/` 下创建以下文件，插件会在对应时机**自动执行**，无需任何命令：
+
+Create the following files under `plugins/HimDSL/`; the plugin runs them **automatically** at the matching moments — no command needed:
+
+| 文件 | 触发时机 |
+|------|---------|
+| `onServerLoad.himdsl` | 服务器加载完成后 |
+| `onServerShutdown.himdsl` | 插件卸载或服务器关闭时 |
+
+| File | When |
+|------|------|
+| `onServerLoad.himdsl` | After the server finishes loading |
+| `onServerShutdown.himdsl` | On plugin unload or server shutdown |
+
+两个文件的写法与普通脚本完全一致，以 `main` 作为入口。
+
+Both files use ordinary script syntax with `main` as the entry point.
+
+---
+
+## 语言一览 / Language at a Glance
+
+```himdsl
+// 变量与类型 / Variables and types
+int n = 5;
+double hp = 20.0;
+string name = "Steve";
+var list = vector();
+
+// 选择器 / Selectors
+player p = @p;
+var all = @a;
+
+// 占位符 / Placeholders（软依赖场景）
+double hunger = $player(p, hungry)$;
+
+// 引用字段 / Reference fields
+string pname = p.name;
+double px = p.x;
+
+// 控制流 / Control flow
+for (int i = 0; i < 10; i++) {
+    if (i % 2 == 0) continue;
+    runcmd("CONSOLE", "say " + i);
 }
-for (var i = 0; i < 10; i = i + 1) { //注意，没有提供i++,i--等语法。
-    // ...
+
+// 结构体 / Structs
+struct Point {
+    int x;
+    int y;
+};
+
+Point pt;
+pt.x = 3;
+pt.y = 4;
+
+// 事件 / Events
+@EventHandler
+void onJoin(event(PlayerJoinEvent)) {
+    player who = @s;
+    runcmd("CONSOLE", "say 欢迎 " + who.name);
 }
-while (条件) {
-    // ...
+
+// 定时任务 / Scheduled tasks
+@BukkitRunnable
+void tick() sche = 10s {
+    runcmd("CONSOLE", "say 心跳");
 }
-do {
-    // ...
-} while (条件);
 
-函数定义
-返回类型 函数名(参数列表) [sche = 时间表达式]? 块
-参数可以是普通参数（int x, string name）或事件参数（event(事件类型)）。
-支持 @EventHandler（事件监听）和 @BukkitRunnable（定时任务）注解。
-若带 sche =，则自动按周期执行（仅对 @BukkitRunnable 有效）。
+int main() {
+    start("onJoin");
+    start("tick");
+}
+```
 
-事件函数
-参数中必须包含 event(事件类型)，例如 event(PlayerJoinEvent)。
-在函数体内可通过 event 变量访问事件对象，例如 event.getPlayer()。
-支持所有 Bukkit 事件（如 BlockBreakEvent, PlayerCommandPreprocessEvent 等）。
+---
 
-定时任务
-使用 @BukkitRunnable 注解，并指定 sche = 时间表达式。
-时间格式：5s（秒）、10t（刻，或直接数字（以刻为单位）。
-函数会在后台异步执行（避免阻塞主线程），自动考虑线程安全。
+## 内置函数概览 / Built-ins at a Glance
 
-可通过 start("函数名") 和 stop("函数名") 内置函数手动启停。
+- **数学**：`abs`、`max`、`min`、`sqrt`、`pow`、`sin`、`rand` 等
+- **高精度**：`bigAdd`、`bigSub`、`bigMul`、`bigDiv`、`bigDivExact`
+- **字符串**：`length`、`replace`、`split`、`contains`、`startsWith` 等（方法形式优先）
+- **容器**：`vector`、`set`、`map`、`stack`、`queue`
+- **文件 I/O**：`fopen`、`fread`、`fwrite`、`fclose`、`fexists`、`fdelete`、`freadlines`、`fwritelines`
+- **命令**：`runcmd(executor, command)`
+- **JSON**：`toJson`、`fromJson`
+- **PlaceholderAPI**：`papi`、`papiSet`、`papiRegister`、`papiUnregister`、`papiHas`
 
-占位符（Placeholder）
-占位符用于获取游戏状态信息，格式：$类型(参数)$。
+- **Math**: `abs`, `max`, `min`, `sqrt`, `pow`, `sin`, `rand`, etc.
+- **BigDecimal**: `bigAdd`, `bigSub`, `bigMul`, `bigDiv`, `bigDivExact`
+- **Strings**: `length`, `replace`, `split`, `contains`, `startsWith`, etc. (method form preferred)
+- **Containers**: `vector`, `set`, `map`, `stack`, `queue`
+- **File I/O**: `fopen`, `fread`, `fwrite`, `fclose`, `fexists`, `fdelete`, `freadlines`, `fwritelines`
+- **Commands**: `runcmd(executor, command)`
+- **JSON**: `toJson`, `fromJson`
+- **PlaceholderAPI**: `papi`, `papiSet`, `papiRegister`, `papiUnregister`, `papiHas`
 
-类型	说明
-$player(变量名, 属性, ...)$	获取玩家属性。
-变量名需为已定义的 player 变量或事件中的玩家。属性示例：x, y, z, yaw, pitch, hp, hungry,
-name, uuid, opengui, handlejoin, handleleave, breaktype, breakpos, buildtype,
-buildpos, runcommand, slot, mainhand, offhand, bossdistance, atroom, issneaking,
-issprinting, gamemode, explevel, world
-$world(属性, ...)$	世界信息。
-属性：name, id, block(x,y,z), iscontainer(x,y,z), contain(x,y,z,slot),
-hasplayer(世界名)，以及 WorldEdit 相关（getx, gety, getz，需软依赖）。
-支持可选世界名参数。
-$server(属性, ...)$	服务器信息。
-属性：tps, mspt, ping(玩家名), serverloadevent, servercloseevent,
-onpluginenable, onplugindisable, ondungeonfail, ondungeonwin。
-$boss(属性)$	
-获取 HimDungeons 插件中的 Boss 属性：x, y, z, yaw, pitch, world。需软依赖。
-$haveVar(变量名)$	
-检查变量是否存在，返回布尔值。
+---
 
-内置函数
-HimDSL 提供了丰富的内置函数，可直接调用。
+## 扩展 API / Extension API
 
-函数名	说明
-rand()	返回 0~1 随机 double。rand(a,b) 返回 a~b 随机数（整数或浮点）
-randChoose(a, b, ...)	从参数中随机选择一个
-toInt(x), toDouble(x), toLong(x), toString(x), toBool(x)	类型转换
-toUpperCase(s), toLowerCase(s), trim(s)	字符串处理
-replace(s, old, new)	替换字符串
-split(s, regex)	分割字符串，返回字符串数组
-contains(s, sub)	判断是否包含子串
-length(s)	字符串长度
-startsWith(s, prefix), endsWith(s, suffix)	字符串前缀/后缀判断
-runcmd(执行者, 命令)	执行命令，执行者可为 "CONSOLE" 或玩家名
-sleep(毫秒)	休眠（慎用，可能阻塞）
-stack(), push(stack, item), pop(stack), peek(stack), isEmpty(stack)	栈操作
-queue(), offer(queue, item), poll(queue), peek(queue), isEmpty(queue)	队列操作
-map(), put(map, key, value), get(map, key), remove(map, key), containsKey(map, key)	Map 操作
-start(函数名), stop(函数名)	手动启动/停止已定义的注解函数（@EventHandler 或 @BukkitRunnable）
-isOp(玩家对象或名字)	判断玩家是否为 OP
-数学函数：abs, fabs, fmod, max, min, pow, sqrt, cbrt, 
-hypot, log, log10, log2, ceil, floor, round, sin, cos,
-tan, asin, acos, atan	对应数学运算
-详细说明
-变量作用域
-全局变量在脚本顶层声明，所有函数共享（通过 globalEnv）。
+其他 Java 插件可以通过 Bukkit 的 ServicesManager 调用 HimDSL：
 
-函数内的变量为局部，仅在函数内有效。
+Other Java plugins can call HimDSL through Bukkit's ServicesManager:
 
-块级作用域（{ }）会创建新环境。
+```java
+HimDSLAPI api = Bukkit.getServicesManager().load(HimDSLAPI.class);
+if (api != null) {
+    api.run(new File(himdslFolder, "script.himdsl"));
+}
+```
 
-选择器过滤详解
-@a 返回所有在线玩家（List），@p 返回最近的单个玩家（若 limit=1 则仍为 List）
-若 limit 未指定，@a 返回 List；若 limit=1 返回单个 Player。
+在 `plugin.yml` 中声明软依赖：
 
-占位符参数说明
-$player 的第一个参数是变量名（字符串），第二个是属性，后续参数为附加参数（如 slot 需要提供槽位编号）。
-$world 中，block/iscontainer/contain 需要坐标，可先指定世界名（字符串）作为第二个参数，否则默认使用最后记录的世界。
-$server 的 ping 需要玩家名参数。
-$boss 需要软依赖 HimDungeons。
+Declare a soft dependency in `plugin.yml`:
 
-事件监听函数
-使用 @EventHandler 注解。
-参数列表必须包含 event(具体事件类型)，例如 event(PlayerJoinEvent)。
-事件对象可通过 event 变量访问，并调用其方法（如 getPlayer()）。
-监听会在脚本加载后需要手动启动,可使用 start("函数名"); 手动启用
+```yaml
+softdepend: [HimDSL]
+```
 
-定时异步任务
-使用 @BukkitRunnable 注解，并指定 sche=时间。
-任务默认异步执行（runTaskAsynchronously）。
-重复任务会在每次执行完后重新调度（基于周期）。
-可通过 stop("函数名") 停止。
+**先想清楚方向**：脚本要调其他插件，用脚本自身的 Java 互操作（全限定名 + `new` + 静态方法），**不需要 API**。只有"其他插件要调脚本"才轮到 `HimDSLAPI`。
 
-启动/停止函数
-内置函数 start("函数名") 和 stop("函数名") 可控制带有注解的函数。
-对于 @BukkitRunnable，start 会开始调度，stop 取消任务。
-对于 @EventHandler，start 注册监听，stop 取消注册。
+**Ask direction first**: script → plugin uses the script's own Java interop (FQN + `new` + statics), **no API needed**. Only "plugin → script" calls for `HimDSLAPI`.
 
-注意
-**不要在runcmd的第二个参数尝试拼接字符串，请在外面拼好直接放进去！**
+---
 
-扩展 API（供插件开发者）
-HimDSL 提供了 API，允许其他插件注册自定义占位符。
+## 文档 / Documentation
 
-获取 API 实例
-java
-HimDSLAPI api = Bukkit.getServicesManager().getRegistration(HimDSLAPI.class).getProvider();
-注册自定义占位符
-java
-api.registerPlaceholder("myplugin", args -> {
-    // args 为占位符参数列表（已求值）
-    return "自定义结果";
-});
-之后可在脚本中使用 $myplugin(参数)$。
+完整文档见仓库 Wiki：
 
-保存脚本
-java
-api.saveScript("subfolder/script.hdsl", "var x = 10;");
-故障排除
-脚本不执行：检查文件路径是否正确，使用 /himdsl compile 查看语法错误。
-事件不触发：确认函数有 @EventHandler 注解且参数正确。若未自动注册，可调用 start("函数名")。
-定时任务不运行：需在 main 或其他地方调用 start("函数名") 启动。
-选择器返回 null：确认有符合条件的玩家，或检查 origin 是否设置（如 @p 需要距离参考）。
-占位符报错：检查参数个数和类型，参考本教程。
+Full documentation is in the repository Wiki:
 
-贡献与许可
-欢迎提交 Issue 和 Pull Request。插件采用 GPL v3许可证。
+- **入门 / Getting Started** —— 安装、第一个脚本、命令、自动执行脚本
+- **语言基础 / Language Basics** —— 词法、变量与类型、运算符、字符串与字符
+- **控制流 / Control Flow** —— if / else、for、while、do-while、break / continue / return
+- **函数 / Functions** —— 定义、重载、Lambda、函数式接口
+- **数据结构 / Data Structures** —— 数组、List / Set / Map、Stack / Queue、JSON
+- **自定义类型 / Custom Types** —— struct、方法绑定、enum、Java 互操作
+- **Minecraft 集成 / Minecraft Integration** —— 选择器、EntityRef、占位符、PAPI
+- **事件与调度 / Events & Scheduling** —— `@EventHandler`、`@BukkitRunnable`、`start` / `stop`
+- **GUI 系统 / GUI System** —— 创建、GUISlot、点击回调、onClose、刷新
+- **内置函数参考 / Built-ins Reference** —— 数学、高精度、字符串、集合、文件、命令
+- **进阶 / Advanced** —— 反射、枚举解析、作用域与闭包、调试、陷阱
+- **扩展 API / Extension API** —— 是否需要 API、`HimDSLAPI`、自定义占位符、嵌入式调用
+- **示例脚本 / Example Scripts** —— 递归、循环、GUI 商店、登录奖励、定时广播、状态机、小游戏
 
-Happy Scripting!
+---
+
+## 许可 / License
+
+见仓库根目录的 `LICENSE` 文件。
+
+See the `LICENSE` file at the repository root.
+
+---
+
+## 反馈 / Feedback
+
+Issue 与 Pull Request 都欢迎。使用文档见 Wiki；遇到具体问题时，先查 **[常见陷阱 / Pitfalls]** 一章。
+
+Issues and pull requests are welcome. See the Wiki for usage; when stuck, check the **[常见陷阱 / Pitfalls]** chapter first.
