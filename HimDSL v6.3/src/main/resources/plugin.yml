@@ -1,0 +1,18 @@
+name: HimDSL
+version: "6.3"
+main: com.himdsl.HimDSLPlugin
+api-version: 1.13
+commands:
+  himdsl:
+    description: HimDSL 脚本管理
+    usage: /himdsl <compile|run|debug> <相对路径>
+permissions:
+  himdsl.use:
+    description: 允许 /himdsl compile
+    default: op
+  himdsl.run:
+    description: 允许 /himdsl run
+    default: op
+  himdsl.debug:
+    description: 允许 /himdsl debug
+    default: op
