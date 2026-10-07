@@ -8,15 +8,15 @@ A domain-specific language (DSL) plugin for Minecraft Java servers. Write event 
 
 ## 环境要求 / Requirements
 
-- **服务端**：Bukkit / Spigot / Paper 1.13+（推荐 Paper 1.21 以上）
+- **服务端**：Bukkit / Spigot / Paper 1.21+（推荐 Paper 1.21 以上）
 - **Java**：25 或更高
 - **可选依赖**（缺省时功能自动降级）：
   - [PlaceholderAPI](https://www.spigotmc.org/resources/placeholderapi.6245/) —— `papi(...)` 系列函数
   - HimDungeons —— `$boss(...)$` 与部分玩家占位符
   - WorldEdit —— 部分世界占位符
 
-- **Server**: Bukkit / Spigot / Paper 1.13+ (Paper 1.16.5+ recommended)
-- **Java**: 17 or later
+- **Server**: Bukkit / Spigot / Paper 1.21+ (Paper 1.16.5+ recommended)
+- **Java**: 25 or later
 - **Optional dependencies** (features degrade gracefully when missing):
   - [PlaceholderAPI](https://www.spigotmc.org/resources/placeholderapi.6245/) — `papi(...)` family
   - HimDungeons — `$boss(...)$` and some player placeholders
